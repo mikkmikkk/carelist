@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import DashboardLayout from "./DashboardLayout";
 
 const API = "http://localhost:3000/patients"; // backend
 
@@ -45,14 +44,19 @@ export default function DoctorDashboard() {
     }
   };
 
-  // Pagination logic
   // Filter appointments
   const filteredAppointments = appointments.filter((appointment) => {
-    const matchesName = appointment.FullName.toLowerCase().includes(searchName.toLowerCase());
-    const matchesStatus = filterStatus === "All" || appointment.status === filterStatus || (filterStatus === "Pending" && !appointment.status);
+    const matchesName = appointment.FullName.toLowerCase().includes(
+      searchName.toLowerCase()
+    );
+    const matchesStatus =
+      filterStatus === "All" ||
+      appointment.status === filterStatus ||
+      (filterStatus === "Pending" && !appointment.status);
     return matchesName && matchesStatus;
   });
 
+  // Pagination logic
   const totalPages = Math.ceil(filteredAppointments.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -60,7 +64,7 @@ export default function DoctorDashboard() {
 
   const goToPage = (page) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // Reset to page 1 when filters change
@@ -69,88 +73,103 @@ export default function DoctorDashboard() {
   }, [searchName, filterStatus]);
 
   return (
-    <DashboardLayout>
-      <div className="min-h-screen bg-gray-100 p-6">
-        <h1 className="text-3xl font-bold mb-6 text-gray-800">
-          Upcoming Appointments
-        </h1>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">
+        Upcoming Appointments
+      </h1>
 
-        {/* Filters */}
-        <div className="bg-white shadow-md rounded-lg p-4 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Search by Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Search by Patient Name
-              </label>
-              <input
-                type="text"
-                placeholder="Enter patient name..."
-                value={searchName}
-                onChange={(e) => setSearchName(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-              />
-            </div>
-
-            {/* Filter by Status */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Filter by Status
-              </label>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-              >
-                <option value="All">All Status</option>
-                <option value="Pending">Pending</option>
-                <option value="Accepted">Accepted</option>
-                <option value="Rejected">Rejected</option>
-              </select>
-            </div>
+      {/* Filters */}
+      <div className="bg-white shadow-md rounded-lg p-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Search by Name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Search by Patient Name
+            </label>
+            <input
+              type="text"
+              placeholder="Enter patient name..."
+              value={searchName}
+              onChange={(e) => setSearchName(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            />
           </div>
 
-          {/* Clear Filters Button */}
-          {(searchName || filterStatus !== "All") && (
-            <div className="mt-4">
-              <button
-                onClick={() => {
-                  setSearchName("");
-                  setFilterStatus("All");
-                }}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-medium"
-              >
-                Clear Filters
-              </button>
-            </div>
-          )}
+          {/* Filter by Status */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Filter by Status
+            </label>
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            >
+              <option value="All">All Status</option>
+              <option value="Pending">Pending</option>
+              <option value="Accepted">Accepted</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
         </div>
 
-        <div className="bg-white shadow-md rounded-lg overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 table-auto">
+        {/* Clear Filters Button */}
+        {(searchName || filterStatus !== "All") && (
+          <div className="mt-4">
+            <button
+              onClick={() => {
+                setSearchName("");
+                setFilterStatus("All");
+              }}
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-medium"
+            >
+              Clear Filters
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Table with fixed layout */}
+      <div className="bg-white shadow-md rounded-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 table-fixed">
             <thead className="bg-blue-50">
               <tr>
-                {[
-                  "#",
-                  "Patient Name",
-                  "Age",
-                  "Condition",
-                  "Date",
-                  "Time",
-                  "Gender",
-                  "Status",
-                  "Actions",
-                ].map((col) => (
-                  <th
-                    key={col}
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase"
-                  >
-                    {col}
-                  </th>
-                ))}
+                <th className="w-16 px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                  #
+                </th>
+                <th className="w-48 px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                  Patient Name
+                </th>
+                <th className="w-16 px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                  Age
+                </th>
+                <th className="w-40 px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                  Condition
+                </th>
+                <th className="w-32 px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                  Date
+                </th>
+                <th className="w-24 px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                  Time
+                </th>
+                <th className="w-24 px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                  Gender
+                </th>
+                <th className="w-28 px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                  Status
+                </th>
+                <th className="w-44 px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                  Actions
+                </th>
               </tr>
             </thead>
+          </table>
+        </div>
 
+        {/* Scrollable body */}
+        <div className="max-h-80 overflow-y-auto overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 table-fixed">
             <tbody className="divide-y divide-gray-200">
               {currentAppointments.length === 0 ? (
                 <tr>
@@ -161,14 +180,16 @@ export default function DoctorDashboard() {
               ) : (
                 currentAppointments.map((p, index) => (
                   <tr key={p.PatientID} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">{startIndex + index + 1}</td>
-                    <td className="px-6 py-4">{p.FullName}</td>
-                    <td className="px-6 py-4">{p.Age}</td>
-                    <td className="px-6 py-4">{p.Condition}</td>
-                    <td className="px-6 py-4">{p.PreferredDate?.split("T")[0]}</td>
-                    <td className="px-6 py-4">{p.PreferredTime}</td>
-                    <td className="px-6 py-4">{p.Gender}</td>
-                    <td className="px-6 py-4">
+                    <td className="w-16 px-6 py-4">{startIndex + index + 1}</td>
+                    <td className="w-48 px-6 py-4">{p.FullName}</td>
+                    <td className="w-16 px-6 py-4">{p.Age}</td>
+                    <td className="w-40 px-6 py-4">{p.Condition}</td>
+                    <td className="w-32 px-6 py-4">
+                      {p.PreferredDate?.split("T")[0]}
+                    </td>
+                    <td className="w-24 px-6 py-4">{p.PreferredTime}</td>
+                    <td className="w-24 px-6 py-4">{p.Gender}</td>
+                    <td className="w-28 px-6 py-4">
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-semibold ${
                           p.status === "Accepted"
@@ -181,98 +202,109 @@ export default function DoctorDashboard() {
                         {p.status || "Pending"}
                       </span>
                     </td>
-                    <td className="px-6 py-4 flex gap-2">
-                      {p.status === "Pending" && (
-                        <>
+                    <td className="w-44 px-6 py-4">
+                      {p.status === "Pending" || !p.status ? (
+                        <div className="flex gap-2">
                           <button
-                            onClick={() => updateStatus(p.PatientID, "Accepted")}
-                            className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                            onClick={() =>
+                              updateStatus(p.PatientID, "Accepted")
+                            }
+                            className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-xs"
                           >
                             Accept
                           </button>
                           <button
-                            onClick={() => updateStatus(p.PatientID, "Rejected")}
-                            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                            onClick={() =>
+                              updateStatus(p.PatientID, "Rejected")
+                            }
+                            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs"
                           >
                             Reject
                           </button>
-                        </>
-                      )}
+                        </div>
+                      ) : null}
                     </td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
+        </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200">
-              <div className="flex-1 flex justify-between sm:hidden">
-                <button
-                  onClick={() => goToPage(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Previous
-                </button>
-                <button
-                  onClick={() => goToPage(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Next
-                </button>
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200">
+            <div className="flex-1 flex justify-between sm:hidden">
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm text-gray-700">
+                  Showing <span className="font-medium">{startIndex + 1}</span>{" "}
+                  to{" "}
+                  <span className="font-medium">
+                    {Math.min(endIndex, filteredAppointments.length)}
+                  </span>{" "}
+                  of{" "}
+                  <span className="font-medium">
+                    {filteredAppointments.length}
+                  </span>{" "}
+                  results
+                </p>
               </div>
-              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm text-gray-700">
-                    Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
-                    <span className="font-medium">{Math.min(endIndex, filteredAppointments.length)}</span> of{" "}
-                    <span className="font-medium">{filteredAppointments.length}</span> results
-                  </p>
-                </div>
-                <div>
-                  <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                    <button
-                      onClick={() => goToPage(currentPage - 1)}
-                      disabled={currentPage === 1}
-                      className="relative inline-flex items-center px-4 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Previous
-                    </button>
-                    
-                    {[...Array(totalPages)].map((_, i) => {
-                      const page = i + 1;
-                      return (
-                        <button
-                          key={page}
-                          onClick={() => goToPage(page)}
-                          className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                            currentPage === page
-                              ? "z-10 bg-blue-600 border-blue-600 text-white"
-                              : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
-                          }`}
-                        >
-                          {page}
-                        </button>
-                      );
-                    })}
+              <div>
+                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                  <button
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="relative inline-flex items-center px-4 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Previous
+                  </button>
 
-                    <button
-                      onClick={() => goToPage(currentPage + 1)}
-                      disabled={currentPage === totalPages}
-                      className="relative inline-flex items-center px-4 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </button>
-                  </nav>
-                </div>
+                  {[...Array(totalPages)].map((_, i) => {
+                    const page = i + 1;
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => goToPage(page)}
+                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                          currentPage === page
+                            ? "z-10 bg-blue-600 border-blue-600 text-white"
+                            : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
+
+                  <button
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="relative inline-flex items-center px-4 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Next
+                  </button>
+                </nav>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-    </DashboardLayout>
+    </div>
   );
 }
